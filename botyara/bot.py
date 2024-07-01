@@ -1,43 +1,68 @@
 import telebot
-from bs4 import BeautifulSoup
-import json
-import requests
+import sqlalchemy as db
 
-bot = telebot.TeleBot('7285881707:AAGReJHIgnzuy361KAIpbsroeKqnTEXtVbw')
+from parsing import get_vacancies
 
+bot = telebot.TeleBot('7230534726:AAE6PjCMj71A_D98hnG1ptBY0H4bhtoQ2Fc')
 
-def get_vacancies(title, page, area):
-    url = "https://hh.ru/search/vacancy"
-    params = {
-        "text": title,
-        "area": area,
-        "per_page": 10,
-    }
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                      "AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/124.0.0.0 Safari/537.36",
-    }
+request = []
+@bot.message_handler(commands=['start'])
+def start(message):
 
-    response = requests.get(url, params=params, headers=headers)
-    soup = BeautifulSoup(response.text, 'lxml')
-    heading = soup.find_all('span', class_='vacancy-name--c1Lay3KouCl7XasYakLk serp-item__title-link')
-    work_exp = soup.find_all('span', attrs={
-        'class': 'label--rWRLMsbliNlu_OMkM_D3 label_light-gray--naceJW1Byb6XTGCkZtUM',
-        'data-qa': 'vacancy-serp__vacancy-work-experience'
-    })
-    salary = soup.find_all('span', class_='fake-magritte-primary-text--Hdw8FvkOzzOcoR4xXWni '
-                                          'compensation-text--kTJ0_rp54B2vNeZ3CTt2 '
-                                          'separate-line-on-xs--mtby5gO4J0ixtqzW38wh')
+    engine = db.create_engine('postgresql://postgres:xm6idbip@localhost/users_test', echo=True)
+    conn = engine.connect()
+    metadata = db.MetaData()
 
-    for p in range(0, page):
-        data = {
-            'heading': heading[p].text,
-            'work experience': work_exp[p].text,
-            'salary': salary[p].text
-        }
-        json_obj = json.dumps(data, indent = 3, ensure_ascii=False)
-        print(json_obj)
+    users = db.Table('users_test', metadata,
+                     db.Column('tg_id', db.Integer, primary_key = True),
+                     db.Column('username', db.Text))
+    metadata.create_all(engine)
+
+    new_user = users.insert().values([
+        message.from_user.id,
+        message.from_user.username])
+
+    conn.execute(new_user)
+
+    bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name}! '
+                                      'С моей помощью ты можешь найти подходящую вакансию всего лишь в пару кликов. '
+                                      'Кем ты хочешь работать?')
+    bot.register_next_step_handler(message, get_vacancy_title)
 
 
-get_vacancies("backend разработчик", 3, 1)
+def get_vacancy_title(message):
+    vacancy_title = message.text
+    bot.send_message(message.chat.id, 'Отлично, напиши, сколько вариантов предложить')
+    request.append(vacancy_title)
+    bot.register_next_step_handler(message, get_vacancy_number)
+
+
+def get_vacancy_number(message):
+    bot.send_message(message.chat.id, 'Подожди пару секунд')
+
+    vacancy_number = int(message.text)
+    request.append(vacancy_number)
+    vacancies = get_vacancies(request[0], request[1], 1)
+
+    for i in range(0, len(vacancies)):
+        title = vacancies[i]['title']
+        exp = vacancies[i]['experience']
+        salary = vacancies[i]['salary']
+        city = vacancies[i]['city']
+        subway = vacancies[i]['subway']
+        company = vacancies[i]['company']
+        link = vacancies[i]['link']
+        bot.send_message(message.chat.id,
+                         f'{title}. '
+                         f'{exp}. '
+                         f'Зарплата: {salary}. '
+                         f'Город: {city}. '
+                         f'Станция метро: {subway}. '
+                         f'Компания: {company}. '
+                         f'Перейдите по данной ссылке, чтобы узнать подробности: {link}')
+
+    bot.send_message(message.chat.id, 'Поиск закончен. Введи коман  ду "/start", чтобы начать заново')
+    bot.register_next_step_handler(message, start)
+
+
+bot.polling(none_stop=True)
