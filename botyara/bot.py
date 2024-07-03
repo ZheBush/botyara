@@ -2,27 +2,35 @@ import telebot
 import sqlalchemy as db
 
 from parsing import get_vacancies
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import exists
+from User import User
 
 bot = telebot.TeleBot('7230534726:AAE6PjCMj71A_D98hnG1ptBY0H4bhtoQ2Fc')
 
 request = []
+
+
 @bot.message_handler(commands=['start'])
 def start(message):
-
     engine = db.create_engine('postgresql://postgres:xm6idbip@localhost/users_test', echo=True)
     conn = engine.connect()
     metadata = db.MetaData()
 
-    users = db.Table('users_test', metadata,
-                     db.Column('tg_id', db.Integer, primary_key = True),
-                     db.Column('username', db.Text))
-    metadata.create_all(engine)
+    get_session = sessionmaker(bind=engine)
+    session = get_session()
 
-    new_user = users.insert().values([
-        message.from_user.id,
-        message.from_user.username])
+    if not session.query(exists().where(User.tg_id == message.from_user.id)).scalar():
+        users = db.Table('users_test', metadata,
+                         db.Column('tg_id', db.Integer, primary_key=True),
+                         db.Column('username', db.Text))
+        metadata.create_all(engine)
 
-    conn.execute(new_user)
+        new_user = users.insert().values([
+            message.from_user.id,
+            message.from_user.username])
+
+        conn.execute(new_user)
 
     bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name}! '
                                       'С моей помощью ты можешь найти подходящую вакансию всего лишь в пару кликов. '
