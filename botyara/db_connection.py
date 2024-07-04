@@ -10,6 +10,7 @@ metadata = db.MetaData()
 
 vacancies = db.Table('vacancies', metadata,
                      db.Column('id', db.Integer, primary_key=True),
+                     db.Column('user_tg_id', db.Integer, primary_key=True),
                      db.Column('title', db.Text),
                      db.Column('experience', db.Text),
                      db.Column('salary', db.Text),
@@ -18,11 +19,15 @@ vacancies = db.Table('vacancies', metadata,
                      db.Column('company', db.Text),
                      db.Column('link', db.Text))
 
+users = db.Table('users', metadata,
+                 db.Column('tg_id', db.Integer, primary_key = True),
+                 db.Column('username', db.String))
+
 metadata.create_all(engine)
 
-vacancies_query = vacancies.insert().values(vacancies_array)
+# vacancies_query = vacancies.insert().values(vacancies_array)
 
-# for i in reversed(metadata.sorted_tables):
-#     engine.execute(i.delete())
+for i in reversed(metadata.sorted_tables):
+    engine.execute(i.delete())
 
-conn.execute(vacancies_query)
+# conn.execute(vacancies_query)

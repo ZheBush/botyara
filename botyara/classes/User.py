@@ -2,7 +2,6 @@ import sqlalchemy as db
 
 from sqlalchemy.orm import relationship
 from classes.Base import Base
-from classes.Vacancy import Vacancy
 
 
 class User(Base):

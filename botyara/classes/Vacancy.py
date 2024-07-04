@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from classes.Base import Base
+from classes.User import User
 
 
 class Vacancy(Base):
@@ -15,4 +16,4 @@ class Vacancy(Base):
     subway = Column(String)
     company = Column(String)
     link = Column(String)
-    user = relationship('User', back_populates='vacancies')
+    user = relationship('User', back_populates = 'vacancies')
