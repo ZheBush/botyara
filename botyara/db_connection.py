@@ -4,7 +4,7 @@ from parsing import get_vacancies
 
 vacancies_array = get_vacancies("доставка", 10, 1)
 
-engine = db.create_engine('postgresql://postgres:xm6idbip@localhost/postgres', echo=True)
+engine = db.create_engine('postgresql://postgres:xm6idbip@localhost/bot', echo=True)
 conn = engine.connect()
 metadata = db.MetaData()
 
