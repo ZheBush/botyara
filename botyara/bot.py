@@ -92,8 +92,12 @@ def parsing(message):
                         min_salary += j
                 if int(min_salary) < int(filters['min_salary']):
                     vacancies.remove(i)
-            elif int(i.salary) < filters[0]:
+            elif int(i.salary) < filters['min_salary']:
                 vacancies.remove(i)
+
+        if len(vacancies) < request['number']:
+            bot.send_message(message.chat.id, 'К сожалению, по данным требованиям удалось найти меньше вакансий, '
+                                              'чем требовалось, или же не удалось найти вовсе')
 
         if not session.query(exists().where(User.tg_id == message.from_user.id)).scalar():
             user = User(
