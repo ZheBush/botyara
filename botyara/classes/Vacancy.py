@@ -13,7 +13,6 @@ class Vacancy(Base):
     experience = Column(String)
     salary = Column(String)
     city = Column(String)
-    subway = Column(String)
     company = Column(String)
     link = Column(String)
     user = relationship('User', back_populates = 'vacancies')

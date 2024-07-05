@@ -15,7 +15,6 @@ vacancies = db.Table('vacancies', metadata,
                      db.Column('experience', db.Text),
                      db.Column('salary', db.Text),
                      db.Column('city', db.Text),
-                     db.Column('subway', db.Text),
                      db.Column('company', db.Text),
                      db.Column('link', db.Text))
 

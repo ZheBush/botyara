@@ -46,7 +46,6 @@ def get_vacancies(title, number, area):
             experience=work_exp[p].text.replace(' ', ' ').replace(' ', ' '),
             salary=salary[p].text.replace(' ', ' ').replace(' ', ' '),
             city=city[p].text.replace(' ', ' ').replace(' ', ' '),
-            subway=subway[p].text.replace(' ', ' ').replace(' ', ' '),
             company=company[p].text.replace(' ', ' ').replace(' ', ' '),
             link=link[p]['href']
         )
