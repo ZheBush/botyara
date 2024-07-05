@@ -14,6 +14,7 @@ bot = telebot.TeleBot('7230534726:AAE6PjCMj71A_D98hnG1ptBY0H4bhtoQ2Fc')
 engine = db.create_engine('postgresql://postgres:xm6idbip@localhost/bot', echo=True)
 metadata = db.MetaData()
 request = []
+filters = []
 
 
 @bot.message_handler(commands=['start'])
@@ -25,7 +26,18 @@ def hello(message):
 
 def get_vacancy_title(message):
     bot.send_message(message.chat.id, 'Кем ты хочешь работать?')
-    request.append(message.text)
+    vacancy_title = message.text
+    request.append(vacancy_title)
+    bot.register_next_step_handler(message, get_min_salary)
+
+
+def get_min_salary(message):
+    bot.send_message(message.chat.id, 'Введи минимальный размер зарплаты')
+    if message.text.isdigit():
+        min_salary = message.text
+    else:
+        min_salary = 0
+    filters.append(int(min_salary))
     bot.register_next_step_handler(message, get_vacancy_number)
 
 
@@ -36,10 +48,20 @@ def get_vacancy_number(message):
 
 
 def parsing(message):
-
     with Session(autoflush=False, bind=engine) as session:
 
-        vacancies = get_vacancies(request[0], int(message.text), 1)
+        vacancies = get_vacancies(request[0], int(message.text), 0)
+
+        for i in vacancies:
+            if not (i.salary.isdigit()):
+                min_salary = ''
+                for j in i.salary:
+                    if j.isdigit():
+                        min_salary += j
+                if int(int(min_salary)) < filters[0]:
+                    vacancies.remove(i)
+            elif int(i.salary) < filters[0]:
+                vacancies.remove(i)
 
         if not session.query(exists().where(User.tg_id == message.from_user.id)).scalar():
             user = User(
@@ -69,7 +91,7 @@ def parsing(message):
 def end(message):
     bot.send_message(message.chat.id, 'Поиск закончен')
 
-    markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     restart_button = types.KeyboardButton('Начать сначала')
     stop_button = types.KeyboardButton('Закончить работу')
     markup.add(restart_button, stop_button)
@@ -85,9 +107,8 @@ def stop(message):
     bot.send_message(message.chat.id, 'Буду ждать вашего возвращения')
 
     with Session(autoflush=False, bind=engine) as session:
-
-        session.query(Vacancy).filter_by(user_tg_id = message.chat.id).delete(synchronize_session = False)
-        session.query(User).filter_by(tg_id = message.chat.id).delete(synchronize_session = False)
+        session.query(Vacancy).filter_by(user_tg_id=message.chat.id).delete(synchronize_session=False)
+        session.query(User).filter_by(tg_id=message.chat.id).delete(synchronize_session=False)
 
         session.commit()
 

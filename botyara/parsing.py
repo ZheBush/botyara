@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from classes.Vacancy import Vacancy
 
 
-
 def get_vacancies(title, number, area):
     url = "https://hh.ru/search/vacancy"
     params = {
@@ -42,18 +41,18 @@ def get_vacancies(title, number, area):
     array = []
 
     for p in range(0, number):
-
         vacancy = Vacancy(
-            title = title[p].text.replace(' ', ' ').replace(' ', ' '),
-            experience = work_exp[p].text.replace(' ', ' ').replace(' ', ' '),
-            salary = salary[p].text.replace(' ', ' ').replace(' ', ' '),
-            city = city[p].text.replace(' ', ' ').replace(' ', ' '),
-            subway = subway[p].text.replace(' ', ' ').replace(' ', ' '),
-            company = company[p].text.replace(' ', ' ').replace(' ', ' '),
-            link = link[p]['href']
+            title=title[p].text.replace(' ', ' ').replace(' ', ' '),
+            experience=work_exp[p].text.replace(' ', ' ').replace(' ', ' '),
+            salary=salary[p].text.replace(' ', ' ').replace(' ', ' '),
+            city=city[p].text.replace(' ', ' ').replace(' ', ' '),
+            subway=subway[p].text.replace(' ', ' ').replace(' ', ' '),
+            company=company[p].text.replace(' ', ' ').replace(' ', ' '),
+            link=link[p]['href']
         )
         array.append(vacancy)
 
     return array
+
 
 get_vacancies('доставка', 3, 1)
