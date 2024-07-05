@@ -26,8 +26,8 @@ filters = {
 }
 
 
-@bot.message_handler(commands=['start'])
-def hello(message):
+@bot.message_handler(content_types = ['text'])
+def start(message):
     bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name}! '
                                       'С моей помощью ты можешь найти подходящую вакансию всего лишь в пару кликов. '
                                       'Кем ты хочешь работать?')
@@ -42,7 +42,6 @@ def get_vacancy_title(message):
 
 
 def get_min_salary(message):
-    print(message.text)
     if message.text.isdigit():
         min_salary = message.text
     else:
@@ -79,7 +78,6 @@ def get_vacancy_locality(message):
 
 
 def parsing(message):
-
     number_of_vacancies = int(message.text)
 
     with Session(autoflush=False, bind=engine) as session:
@@ -119,23 +117,22 @@ def parsing(message):
                              f'Компания: {vacancy.company}. '
                              f'Перейдите по данной ссылке, чтобы узнать подробности: {vacancy.link}')
 
-        bot.send_message(message.chat.id, 'Поиск закончен')
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         restart_button = types.KeyboardButton('Начать сначала')
         stop_button = types.KeyboardButton('Закончить работу')
         markup.add(restart_button, stop_button)
-        end(message)
+
+        bot.send_message(message.chat.id, 'Поиск закончен', reply_markup=markup)
+        bot.register_next_step_handler(message, end)
 
 
 def end(message):
-
     if message.text == 'Начать сначала':
-        bot.register_next_step_handler(message, get_vacancy_title)
+        start(message)
     elif message.text == 'Закончить работу':
-        bot.register_next_step_handler(message, stop)
+        stop(message)
 
 
-@bot.message_handler(commands=['stop'])
 def stop(message):
     bot.send_message(message.chat.id, 'Буду ждать вашего возвращения')
 
