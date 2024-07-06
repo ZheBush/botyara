@@ -1,0 +1,7 @@
+beautifulsoup4==4.12.3
+pyTelegramBotAPI==4.20.0
+Requests~=2.31.0
+SQLAlchemy==1.4.39
+telebot~=0.0.5
+lxml==4.9.3
+psycopg2==2.9.9
