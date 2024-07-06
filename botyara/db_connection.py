@@ -24,9 +24,9 @@ users = db.Table('users', metadata,
 
 metadata.create_all(engine)
 
-# vacancies_query = vacancies.insert().values(vacancies_array)
+vacancies_query = vacancies.insert().values(vacancies_array)
 
-for i in reversed(metadata.sorted_tables):
-    engine.execute(i.delete())
+# for i in reversed(metadata.sorted_tables):
+#     engine.execute(i.delete())
 
-# conn.execute(vacancies_query)
+conn.execute(vacancies_query)

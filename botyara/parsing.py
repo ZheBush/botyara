@@ -9,7 +9,7 @@ def get_vacancies(title, number, area):
     params = {
         "text": title,
         "area": area,
-        "per_page": 10,
+        "per_page": 1,
     }
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -31,7 +31,6 @@ def get_vacancies(title, number, area):
         'class': 'bloko-text',
         'data-qa': 'vacancy-serp__vacancy-address'
     })
-    subway = soup.find_all('span', class_='metro-station')
     company = soup.find_all('span', class_='company-info-text--vgvZouLtf8jwBmaD1xgp')
     link = soup.find_all('a', attrs={
         'class': 'bloko-link',
