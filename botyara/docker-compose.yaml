@@ -19,3 +19,13 @@ services:
       POSTGRES_PASSWORD: xm6idbip
     ports:
       - "15432:5432"
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4:7
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: buschkow2005@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: xm6idbip
+    ports:
+      - "5050:80"
